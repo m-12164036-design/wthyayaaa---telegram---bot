@@ -1,0 +1,88 @@
+import os
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
+
+TOKEN = os.getenv("BOT_TOKEN")
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [
+        [InlineKeyboardButton("🤍 yes, i'm ready", callback_data="yes")],
+        [InlineKeyboardButton("😅 not yet", callback_data="no")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(
+        "🤍 hi awak...\n\n"
+        "sebelum tekan apa-apa,\n"
+        "awak betul-betul ready nak baca ni?",
+        reply_markup=reply_markup
+    )
+
+async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == "yes":
+        keyboard = [[InlineKeyboardButton("next ➡️", callback_data="part2")]]
+        await query.edit_message_text(
+            "this is for you, awish.\n\n"
+            "muhammad khaliq darwish.\n\n"
+            "orang tak pernah main-main bila datang bab you.",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+
+    elif query.data == "part2":
+        keyboard = [[InlineKeyboardButton("continue 🤍", callback_data="part3")]]
+        await query.edit_message_text(
+            "setiap gambar kita tu bukan sekadar trend.\n\n"
+            "itu bukti kita pernah try.\n"
+            "pernah sabar.\n"
+            "pernah tahan ego.\n\n"
+            "and even bila gaduh,\n"
+            "kita still pilih each other.",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+
+    elif query.data == "part3":
+        keyboard = [[InlineKeyboardButton("lagi satu ➡️", callback_data="part4")]]
+        await query.edit_message_text(
+            "gambar favourite you tu...\n\n"
+            "you kata orang nampak soft sangat.\n\n"
+            "tapi hati orang lagi lembut bila bab you.\n\n"
+            "orang tetap pilih awish.",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+
+    elif query.data == "part4":
+        keyboard = [[InlineKeyboardButton("last part 💌", callback_data="final")]]
+        await query.edit_message_text(
+            "tak kisah future macam mana,\n"
+            "kalau you masih nak orang ada,\n"
+            "orang stay.\n\n"
+            "you bukan trend.\n"
+            "you someone yang orang doa tiap malam.",
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+
+    elif query.data == "final":
+        await query.edit_message_text(
+            "maybe kita tak perfect.\n"
+            "tapi feeling tu tak pernah kurang.\n\n"
+            "kalau you still here reading this...\n\n"
+            "type YES kalau you stay."
+        )
+
+async def yes_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.message.text.upper() == "YES":
+        await update.message.reply_text(
+            "orang stay juga 🤍\n\n"
+            "— farisha"
+        )
+
+app = ApplicationBuilder().token(TOKEN).build()
+
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CallbackQueryHandler(button))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, yes_reply))
+
+app.run_polling()
